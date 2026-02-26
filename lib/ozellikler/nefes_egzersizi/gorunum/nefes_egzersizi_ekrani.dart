@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../../cekirdek/sabitler/renkler.dart';
+import '../../gunluk/gorunum/gunluk_ekrani.dart';
 
 class NefesEgzersiziEkrani extends StatefulWidget {
   const NefesEgzersiziEkrani({super.key});
@@ -163,20 +164,34 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
             
             const Spacer(),
             
-            // Başlat/Durdur Butonu
-            GestureDetector(
-              onTap: _isActive ? _stopExercise : _startExercise,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                decoration: BoxDecoration(
-                  color: _isActive ? Colors.red[300] : UygulamaRenkleri.adacayiYesili,
-                  borderRadius: BorderRadius.circular(30),
+            // Başlat/Durdur ve Günlük Butonları
+            Column(
+              children: [
+                GestureDetector(
+                  onTap: _isActive ? _stopExercise : _startExercise,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    decoration: BoxDecoration(
+                      color: _isActive ? Colors.red[300] : UygulamaRenkleri.adacayiYesili,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Text(
+                      _isActive ? "Durdur" : "Egzersizi Başlat",
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
-                child: Text(
-                  _isActive ? "Durdur" : "Egzersizi Başlat",
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
+                if (!_isActive) ...[
+                  const SizedBox(height: 15),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const GunlukEkrani()));
+                    },
+                    icon: const Icon(Icons.edit_note, color: UygulamaRenkleri.adacayiYesili),
+                    label: const Text("Hislerini Günlüğe Not Al", style: TextStyle(color: UygulamaRenkleri.adacayiYesili)),
+                  ),
+                ],
+              ],
             ),
             const SizedBox(height: 50),
           ],
