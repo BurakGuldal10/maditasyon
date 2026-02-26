@@ -35,7 +35,7 @@ class ProfilEkrani extends StatelessWidget {
             ),
             const SizedBox(height: 30),
 
-            // Toplam Süre Kartı
+            // Toplam Süre Kartı (Haftalık Özet)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(25),
@@ -44,17 +44,6 @@ class ProfilEkrani extends StatelessWidget {
                 borderRadius: BorderRadius.circular(25),
               ),
               child: const Column(
-                children: [
-                  Text(
-                    "Toplam 120 Dakika Huzur",
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Bu hafta %20 daha fazla meditasyon yaptın",
-                    style: TextStyle(color: Colors.white70, fontSize: 13),
-                  ),
-                ],
               ),
             ),
             const SizedBox(height: 30),
