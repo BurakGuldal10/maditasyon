@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../cekirdek/sabitler/renkler.dart';
 import 'ana_sayfa_ekrani.dart';
 import '../../profil/profil_ekrani.dart';
+import '../../oynatici/gorunum/oynatici_ekrani.dart';
 
 class AnaYapi extends StatefulWidget {
   const AnaYapi({super.key});
@@ -13,10 +14,9 @@ class AnaYapi extends StatefulWidget {
 class _AnaYapiState extends State<AnaYapi> {
   int _seciliIndeks = 0;
 
-  // Ekran listesi
   final List<Widget> _ekranlar = [
     const AnaSayfaEkrani(),
-    const Center(child: Text("Oynatıcı Gelecek")), // Geçici yer tutucu
+    const OynaticiEkrani(),
     const ProfilEkrani(),
   ];
 
