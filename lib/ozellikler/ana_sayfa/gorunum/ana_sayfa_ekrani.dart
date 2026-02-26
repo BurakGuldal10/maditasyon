@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../cekirdek/sabitler/renkler.dart';
+import '../../nefes_egzersizi/gorunum/nefes_egzersizi_ekrani.dart';
 
 class AnaSayfaEkrani extends StatelessWidget {
   const AnaSayfaEkrani({super.key});
@@ -97,10 +98,10 @@ class AnaSayfaEkrani extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    _kategoriOgesi("Uyku", Icons.nightlight_round, UygulamaRenkleri.yumusakLavanta),
-                    _kategoriOgesi("Stres", Icons.psychology, Colors.orange[100]!),
-                    _kategoriOgesi("Odak", Icons.center_focus_strong, UygulamaRenkleri.gokyuzuMavisi.withOpacity(0.3)),
-                    _kategoriOgesi("Yürüyüş", Icons.directions_walk, Colors.green[100]!),
+                    _kategoriOgesi(context, "Uyku", Icons.nightlight_round, UygulamaRenkleri.yumusakLavanta),
+                    _kategoriOgesi(context, "Stres", Icons.psychology, Colors.orange[100]!),
+                    _kategoriOgesi(context, "Odak", Icons.center_focus_strong, UygulamaRenkleri.gokyuzuMavisi.withOpacity(0.3)),
+                    _kategoriOgesi(context, "Nefes", Icons.air_rounded, Colors.green[100]!, gitNefes: true),
                   ],
                 ),
               ),
@@ -121,19 +122,29 @@ class AnaSayfaEkrani extends StatelessWidget {
     );
   }
 
-  Widget _kategoriOgesi(String isim, IconData ikon, Color renk) {
+  Widget _kategoriOgesi(BuildContext context, String isim, IconData ikon, Color renk, {bool gitNefes = false}) {
     return Padding(
       padding: const EdgeInsets.only(right: 15),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(color: renk, borderRadius: BorderRadius.circular(20)),
-            child: Icon(ikon, color: Colors.black54),
-          ),
-          const SizedBox(height: 8),
-          Text(isim, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-        ],
+      child: GestureDetector(
+        onTap: () {
+          if (gitNefes) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NefesEgzersiziEkrani()),
+            );
+          }
+        },
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(color: renk, borderRadius: BorderRadius.circular(20)),
+              child: Icon(ikon, color: Colors.black54),
+            ),
+            const SizedBox(height: 8),
+            Text(isim, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+          ],
+        ),
       ),
     );
   }
