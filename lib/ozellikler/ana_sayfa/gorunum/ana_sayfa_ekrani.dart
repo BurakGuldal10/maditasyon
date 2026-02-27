@@ -3,6 +3,7 @@ import '../../../cekirdek/sabitler/renkler.dart';
 import '../../nefes_egzersizi/gorunum/nefes_egzersizi_ekrani.dart';
 import '../../su_takibi/gorunum/su_takibi_ekrani.dart';
 import '../../uyku_takibi/gorunum/uyku_takibi_ekrani.dart';
+import '../../odaklanma/gorunum/odaklanma_ekrani.dart';
 
 class AnaSayfaEkrani extends StatelessWidget {
   const AnaSayfaEkrani({super.key});
@@ -102,7 +103,7 @@ class AnaSayfaEkrani extends StatelessWidget {
                   children: [
                     _kategoriOgesi(context, "Uyku", Icons.nightlight_round, UygulamaRenkleri.yumusakLavanta, gitUyku: true),
                     _kategoriOgesi(context, "Su", Icons.water_drop_rounded, Colors.blue[100]!, gitSu: true),
-                    _kategoriOgesi(context, "Odak", Icons.center_focus_strong, UygulamaRenkleri.gokyuzuMavisi.withOpacity(0.3)),
+                    _kategoriOgesi(context, "Odak", Icons.timer_rounded, Colors.amber[100]!, gitOdak: true),
                     _kategoriOgesi(context, "Nefes", Icons.air_rounded, Colors.green[100]!, gitNefes: true),
                   ],
                 ),
@@ -124,7 +125,7 @@ class AnaSayfaEkrani extends StatelessWidget {
     );
   }
 
-  Widget _kategoriOgesi(BuildContext context, String isim, IconData ikon, Color renk, {bool gitNefes = false, bool gitSu = false, bool gitUyku = false}) {
+  Widget _kategoriOgesi(BuildContext context, String isim, IconData ikon, Color renk, {bool gitNefes = false, bool gitSu = false, bool gitUyku = false, bool gitOdak = false}) {
     return Padding(
       padding: const EdgeInsets.only(right: 15),
       child: GestureDetector(
@@ -135,6 +136,8 @@ class AnaSayfaEkrani extends StatelessWidget {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const SuTakibiEkrani()));
           } else if (gitUyku) {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const UykuTakibiEkrani()));
+          } else if (gitOdak) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const OdaklanmaEkrani()));
           }
         },
         child: Column(
