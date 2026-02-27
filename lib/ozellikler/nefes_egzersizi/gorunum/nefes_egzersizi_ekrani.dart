@@ -16,8 +16,10 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
   
   String _selectedMode = "Rahatlama";
   String _selectedDifficulty = "Başlangıç";
-  String _statusText = "Başlamak için tıkla";
+  String _statusText = "Hazır mısın?";
+  int _remainingSeconds = 0;
   bool _isActive = false;
+  Timer? _countdownTimer;
 
   @override
   void initState() {
@@ -31,6 +33,29 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
     );
   }
 
+  // Mod ve Zorluğa göre süreleri belirle
+  Map<String, int> _getDurations() {
+    double multiplier = 1.0;
+    if (_selectedDifficulty == "Orta") multiplier = 1.5;
+    if (_selectedDifficulty == "İleri") multiplier = 2.0;
+
+    if (_selectedMode == "Kare Nefesi") {
+      int s = (4 * multiplier).round();
+      return {"al": s, "tut1": s, "ver": s, "tut2": s};
+    } else if (_selectedMode == "Enerji") {
+      int s = (3 * multiplier).round();
+      return {"al": s, "tut1": 0, "ver": (1 * multiplier).round(), "tut2": 0};
+    } else {
+      // Rahatlama (Varsayılan)
+      return {
+        "al": (4 * multiplier).round(),
+        "tut1": (2 * multiplier).round(),
+        "ver": (6 * multiplier).round(),
+        "tut2": 0
+      };
+    }
+  }
+
   void _startExercise() {
     setState(() {
       _isActive = true;
@@ -38,42 +63,88 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
     });
   }
 
+  Future<void> _startCountdown(int seconds) async {
+    if (seconds <= 0) return;
+    
+    setState(() => _remainingSeconds = seconds);
+    _countdownTimer?.cancel();
+    
+    Completer<void> completer = Completer<void>();
+    
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || !_isActive) {
+        timer.cancel();
+        if (!completer.isCompleted) completer.complete();
+        return;
+      }
+      
+      if (_remainingSeconds > 1) {
+        setState(() => _remainingSeconds--);
+      } else {
+        timer.cancel();
+        if (!completer.isCompleted) completer.complete();
+      }
+    });
+    
+    return completer.future;
+  }
+
   void _runCycle() async {
     if (!_isActive) return;
 
-    // Nefes Al
-    setState(() => _statusText = "Nefes Al...");
-    _animationController.forward();
-    await Future.delayed(const Duration(seconds: 4));
+    final durations = _getDurations();
 
+    // 1. Nefes Al
     if (!_isActive) return;
-    
-    // Tut (Eğer Kare Nefesi ise)
-    if (_selectedMode == "Kare Nefesi") {
-      setState(() => _statusText = "Tut...");
-      await Future.delayed(const Duration(seconds: 4));
+    setState(() => _statusText = "Nefes Al");
+    _animationController.duration = Duration(seconds: durations["al"]!);
+    _animationController.forward();
+    await _startCountdown(durations["al"]!);
+
+    // 2. Tut (Nefes sonrası)
+    if (!_isActive) return;
+    if (durations["tut1"]! > 0) {
+      setState(() {
+        _statusText = "Tut";
+        _remainingSeconds = durations["tut1"]!;
+      });
+      await _startCountdown(durations["tut1"]!);
     }
 
+    // 3. Nefes Ver
     if (!_isActive) return;
-
-    // Nefes Ver
-    setState(() => _statusText = "Nefes Ver...");
+    setState(() => _statusText = "Nefes Ver");
+    _animationController.duration = Duration(seconds: durations["ver"]!);
     _animationController.reverse();
-    await Future.delayed(const Duration(seconds: 4));
+    await _startCountdown(durations["ver"]!);
 
+    // 4. Tut (Nefes sonrası - Sadece Kare Nefesi vb.)
+    if (!_isActive) return;
+    if (durations["tut2"]! > 0) {
+      setState(() {
+        _statusText = "Tekrar için Tut";
+        _remainingSeconds = durations["tut2"]!;
+      });
+      await _startCountdown(durations["tut2"]!);
+    }
+
+    // Döngüyü tekrarla
     if (_isActive) _runCycle();
   }
 
   void _stopExercise() {
+    _isActive = false;
+    _countdownTimer?.cancel();
+    _animationController.stop();
     setState(() {
-      _isActive = false;
-      _statusText = "Egzersiz Durduruldu";
-      _animationController.stop();
+      _statusText = "Hazır mısın?";
+      _remainingSeconds = 0;
     });
   }
 
   @override
   void dispose() {
+    _countdownTimer?.cancel();
     _animationController.dispose();
     super.dispose();
   }
@@ -86,15 +157,45 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
         title: const Text("Nefes Egzersizi", style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Zorluk Seviyesi Seçici
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
+            if (!_isActive) ...[
+              // Mod Seçimi
+              const Text("Mod Seçin", style: TextStyle(fontWeight: FontWeight.w600, color: UygulamaRenkleri.ikincilYaziRengi)),
+              const SizedBox(height: 10),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: ["Rahatlama", "Kare Nefesi", "Enerji"].map((mode) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: ChoiceChip(
+                        label: Text(mode),
+                        selected: _selectedMode == mode,
+                        onSelected: (val) {
+                          if (val) setState(() => _selectedMode = mode);
+                        },
+                        selectedColor: UygulamaRenkleri.adacayiYesili,
+                        labelStyle: TextStyle(color: _selectedMode == mode ? Colors.white : Colors.black87),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              // Zorluk Seviyesi Seçici
+              const Text("Zorluk Seviyesi", style: TextStyle(fontWeight: FontWeight.w600, color: UygulamaRenkleri.ikincilYaziRengi)),
+              const SizedBox(height: 10),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: ["Başlangıç", "Orta", "İleri"].map((diff) {
                   return Padding(
@@ -102,33 +203,16 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
                     child: ChoiceChip(
                       label: Text(diff),
                       selected: _selectedDifficulty == diff,
-                      onSelected: (val) => setState(() => _selectedDifficulty = diff),
-                      selectedColor: UygulamaRenkleri.adacayiYesili,
-                      labelStyle: TextStyle(color: _selectedDifficulty == diff ? Colors.white : Colors.black),
+                      onSelected: (val) {
+                        if (val) setState(() => _selectedDifficulty = diff);
+                      },
+                      selectedColor: UygulamaRenkleri.adacayiYesili.withOpacity(0.7),
+                      labelStyle: TextStyle(color: _selectedDifficulty == diff ? Colors.white : Colors.black87),
                     ),
                   );
                 }).toList(),
               ),
-            ),
-            const SizedBox(height: 20),
-            
-            // Mod Seçimi
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: ["Rahatlama", "Kare Nefesi", "Enerji"].map((mode) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: ActionChip(
-                      label: Text(mode),
-                      onPressed: () => setState(() => _selectedMode = mode),
-                      backgroundColor: _selectedMode == mode ? UygulamaRenkleri.adacayiYesili.withOpacity(0.2) : Colors.white,
-                      side: BorderSide(color: _selectedMode == mode ? UygulamaRenkleri.adacayiYesili : Colors.grey[300]!),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
+            ],
             
             const Spacer(),
             
@@ -141,21 +225,41 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
                   height: _sizeAnimation.value,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: UygulamaRenkleri.adacayiYesili.withOpacity(0.3),
-                    border: Border.all(color: UygulamaRenkleri.adacayiYesili, width: 2),
+                    color: UygulamaRenkleri.adacayiYesili.withOpacity(0.15),
+                    border: Border.all(color: UygulamaRenkleri.adacayiYesili.withOpacity(0.5), width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: UygulamaRenkleri.adacayiYesili.withOpacity(0.2),
-                        blurRadius: 30,
+                        color: UygulamaRenkleri.adacayiYesili.withOpacity(0.1),
+                        blurRadius: 40,
                         spreadRadius: 10,
                       ),
                     ],
                   ),
                   child: Center(
-                    child: Text(
-                      _statusText,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UygulamaRenkleri.adacayiYesili),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _statusText,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: _isActive ? 24 : 18, 
+                            fontWeight: FontWeight.bold, 
+                            color: UygulamaRenkleri.anaYaziRengi
+                          ),
+                        ),
+                        if (_isActive && _remainingSeconds > 0) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            "$_remainingSeconds",
+                            style: const TextStyle(
+                              fontSize: 48, 
+                              fontWeight: FontWeight.w300, 
+                              color: UygulamaRenkleri.adacayiYesili
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 );
@@ -164,36 +268,46 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
             
             const Spacer(),
             
-            // Başlat/Durdur ve Günlük Butonları
-            Column(
-              children: [
-                GestureDetector(
-                  onTap: _isActive ? _stopExercise : _startExercise,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    decoration: BoxDecoration(
-                      color: _isActive ? Colors.red[300] : UygulamaRenkleri.adacayiYesili,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Text(
-                      _isActive ? "Durdur" : "Egzersizi Başlat",
-                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            // Başlat/Durdur Butonu
+            Padding(
+              padding: const EdgeInsets.only(bottom: 50),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: _isActive ? _stopExercise : _startExercise,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 18),
+                      decoration: BoxDecoration(
+                        color: _isActive ? Colors.red[400] : UygulamaRenkleri.adacayiYesili,
+                        borderRadius: BorderRadius.circular(35),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (_isActive ? Colors.red[400]! : UygulamaRenkleri.adacayiYesili).withOpacity(0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        _isActive ? "Egzersizi Bitir" : "Başlat",
+                        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
-                ),
-                if (!_isActive) ...[
-                  const SizedBox(height: 15),
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const GunlukEkrani()));
-                    },
-                    icon: const Icon(Icons.edit_note, color: UygulamaRenkleri.adacayiYesili),
-                    label: const Text("Hislerini Günlüğe Not Al", style: TextStyle(color: UygulamaRenkleri.adacayiYesili)),
-                  ),
+                  if (!_isActive) ...[
+                    const SizedBox(height: 25),
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const GunlukEkrani()));
+                      },
+                      icon: const Icon(Icons.edit_note, color: UygulamaRenkleri.adacayiYesili),
+                      label: const Text("Hislerini Not Et", style: TextStyle(color: UygulamaRenkleri.adacayiYesili, fontSize: 16)),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-            const SizedBox(height: 50),
           ],
         ),
       ),
