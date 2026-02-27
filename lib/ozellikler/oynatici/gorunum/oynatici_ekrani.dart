@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
+
 import '../../../cekirdek/sabitler/renkler.dart';
 
 class OynaticiEkrani extends StatefulWidget {
@@ -9,7 +9,8 @@ class OynaticiEkrani extends StatefulWidget {
   State<OynaticiEkrani> createState() => _OynaticiEkraniState();
 }
 
-class _OynaticiEkraniState extends State<OynaticiEkrani> with SingleTickerProviderStateMixin {
+class _OynaticiEkraniState extends State<OynaticiEkrani>
+    with SingleTickerProviderStateMixin {
   late AnimationController _rotationController;
   bool _isPlaying = false;
   double _currentSliderValue = 20.0;
@@ -69,11 +70,15 @@ class _OynaticiEkraniState extends State<OynaticiEkrani> with SingleTickerProvid
                     const Icon(Icons.keyboard_arrow_down_rounded, size: 30),
                     const Text(
                       "ŞİMDİ OYNATILIYOR",
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.timer_outlined),
-                      onPressed: () {}, 
+                      onPressed: () {},
                     ),
                   ],
                 ),
@@ -95,7 +100,9 @@ class _OynaticiEkraniState extends State<OynaticiEkrani> with SingleTickerProvid
                         ),
                       ],
                       image: const DecorationImage(
-                        image: NetworkImage('https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'),
+                        image: NetworkImage(
+                          'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+                        ),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -106,12 +113,19 @@ class _OynaticiEkraniState extends State<OynaticiEkrani> with SingleTickerProvid
                 // Başlık ve Sanatçı
                 const Text(
                   "Derin Odaklanma",
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: UygulamaRenkleri.anaYaziRengi),
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: UygulamaRenkleri.anaYaziRengi,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   "Zihin Arınma Serisi",
-                  style: TextStyle(fontSize: 16, color: UygulamaRenkleri.ikincilYaziRengi),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: UygulamaRenkleri.ikincilYaziRengi,
+                  ),
                 ),
                 const Spacer(),
 
@@ -121,8 +135,12 @@ class _OynaticiEkraniState extends State<OynaticiEkrani> with SingleTickerProvid
                     SliderTheme(
                       data: SliderTheme.of(context).copyWith(
                         trackHeight: 4,
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                        overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 6,
+                        ),
+                        overlayShape: const RoundSliderOverlayShape(
+                          overlayRadius: 14,
+                        ),
                         activeTrackColor: UygulamaRenkleri.adacayiYesili,
                         inactiveTrackColor: Colors.black12,
                         thumbColor: UygulamaRenkleri.adacayiYesili,
@@ -142,8 +160,20 @@ class _OynaticiEkraniState extends State<OynaticiEkrani> with SingleTickerProvid
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("03:45", style: TextStyle(fontSize: 12, color: UygulamaRenkleri.ikincilYaziRengi)),
-                          Text("10:00", style: TextStyle(fontSize: 12, color: UygulamaRenkleri.ikincilYaziRengi)),
+                          Text(
+                            "03:45",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: UygulamaRenkleri.ikincilYaziRengi,
+                            ),
+                          ),
+                          Text(
+                            "10:00",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: UygulamaRenkleri.ikincilYaziRengi,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -170,7 +200,9 @@ class _OynaticiEkraniState extends State<OynaticiEkrani> with SingleTickerProvid
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          _isPlaying
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
                           size: 45,
                           color: Colors.white,
                         ),
