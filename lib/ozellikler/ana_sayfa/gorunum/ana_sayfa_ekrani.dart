@@ -5,6 +5,18 @@ import '../../su_takibi/gorunum/su_takibi_ekrani.dart';
 import '../../uyku_takibi/gorunum/uyku_takibi_ekrani.dart';
 import '../../odaklanma/gorunum/odaklanma_ekrani.dart';
 import '../../gunluk/gorunum/gunluk_ekrani.dart';
+import '../../olumlamalar/gorunum/olumlamalar_ekrani.dart';
+
+// Günlük olumlama — tarihe göre değişir
+const List<String> _gunlukOlumlamalar = [
+  "Ben her gün daha güçlü ve daha huzurluyum.",
+  "Kendime karşı nazik ve şefkatliyim.",
+  "Zorluklarla başa çıkma gücüne sahibim.",
+  "Barış ve huzur içimden geliyor.",
+  "Bugün harika şeyler beni bekliyor.",
+  "Her nefes yeni bir başlangıç.",
+  "Sevgiye ve mutluluğa layığım.",
+];
 
 class AnaSayfaEkrani extends StatelessWidget {
   const AnaSayfaEkrani({super.key});
@@ -89,6 +101,59 @@ class AnaSayfaEkrani extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              // Günün Olumlamas Kartı
+              GestureDetector(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OlumlamalarEkrani())),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFD1C4E9), Color(0xFFB2DFDB)],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(color: const Color(0xFFB39DDB).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 8)),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.auto_awesome_rounded, size: 14, color: Color(0xFF5E35B1)),
+                                const SizedBox(width: 6),
+                                const Text(
+                                  "Günün Olumlamas",
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF5E35B1)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              _gunlukOlumlamalar[DateTime.now().day % _gunlukOlumlamalar.length],
+                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF2D3142), height: 1.5),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.5), shape: BoxShape.circle),
+                        child: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF5E35B1)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: 30),
 
               // Kategoriler
@@ -107,6 +172,7 @@ class AnaSayfaEkrani extends StatelessWidget {
                     _kategoriOgesi(context, "Odak", Icons.timer_rounded, Colors.amber[100]!, gitOdak: true),
                     _kategoriOgesi(context, "Günlük", Icons.edit_note_rounded, Colors.orange[100]!, gitGunluk: true),
                     _kategoriOgesi(context, "Nefes", Icons.air_rounded, Colors.green[100]!, gitNefes: true),
+                    _kategoriOgesi(context, "Olumla", Icons.auto_awesome_rounded, const Color(0xFFE8D5F5), gitOlumla: true),
                   ],
                 ),
               ),
@@ -127,7 +193,7 @@ class AnaSayfaEkrani extends StatelessWidget {
     );
   }
 
-  Widget _kategoriOgesi(BuildContext context, String isim, IconData ikon, Color renk, {bool gitNefes = false, bool gitSu = false, bool gitUyku = false, bool gitOdak = false, bool gitGunluk = false}) {
+  Widget _kategoriOgesi(BuildContext context, String isim, IconData ikon, Color renk, {bool gitNefes = false, bool gitSu = false, bool gitUyku = false, bool gitOdak = false, bool gitGunluk = false, bool gitOlumla = false}) {
     return Padding(
       padding: const EdgeInsets.only(right: 15),
       child: GestureDetector(
@@ -142,6 +208,8 @@ class AnaSayfaEkrani extends StatelessWidget {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const OdaklanmaEkrani()));
           } else if (gitGunluk) {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const GunlukEkrani()));
+          } else if (gitOlumla) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const OlumlamalarEkrani()));
           }
         },
         child: Column(
