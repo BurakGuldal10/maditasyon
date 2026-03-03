@@ -1,0 +1,95 @@
+{
+   "checksum": "d682e7a19162772694e5af260d51e91d",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13314799045358593",
+            "date_last_used": "0",
+            "guid": "e423cd56-1af6-4afb-869b-84583f627af2",
+            "id": "10",
+            "name": "BTK Akademi",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.btkakademi.gov.tr/",
+            "visit_count": 0
+         }, {
+            "date_added": "13417007190181935",
+            "date_last_used": "0",
+            "guid": "004cfcbb-b28e-46a0-ac16-caeec9b463ba",
+            "id": "9",
+            "name": "ASUS Software Portal - Exclusive technology",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://www.asus.com/Software-and-Innovations-Portal/",
+            "visit_count": 0
+         }, {
+            "date_added": "13417007190180880",
+            "date_last_used": "0",
+            "guid": "971213b1-907c-4c8a-8492-770bf51233ca",
+            "id": "8",
+            "name": "MyASUS Software - Get the best from ASUS PC",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://www.asus.com/ASUS-Software/",
+            "visit_count": 0
+         }, {
+            "date_added": "13417007190179098",
+            "date_last_used": "0",
+            "guid": "e7088711-08ca-4985-84ae-9b36eb925b32",
+            "id": "7",
+            "name": "McAfee LiveSafe",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://home.mcafee.com/root/campaign.aspx?cid=247829",
+            "visit_count": 0
+         } ],
+         "date_added": "13417007189724860",
+         "date_last_used": "0",
+         "date_modified": "13417007190181935",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Sık kullanılanlar çubuğu",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "other": {
+         "children": [  ],
+         "date_added": "13417007189724860",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Diğer sık kullanılanlar",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13417007189724860",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobil sık kullanılanlar",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "workspaces_v2": {
+         "children": [  ],
+         "date_added": "13417007189724860",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "75aa6670-344f-549d-b742-660f029506ab",
+         "id": "5",
+         "name": "Çalışma alanları",
+         "source": "unknown",
+         "type": "folder"
+      }
+   },
+   "sync_metadata": "CkEKHgiIgQISCGG+N7OcAQAAKg4QABgBIAAoBjAAOABAABIAKhhINXY2anVOcWZ0cnRCWG1xU2Y1cW53PT1IA6AGDBKsAQgKEqcBChxPQXdITjJHS0xyNjZ6cGhHY1hKOVhHek1Pa0U9EiRlNDIzY2Q1Ni0xYWY2LTRhZmItODY5Yi04NDU4M2Y2MjdhZjIYACAAKAAwuOTesdswOKzl3rHbMECs5d6x2zBKHGMwVkxGVm1HM0R4dVRVblJmVW9ndGQxK1hDaz1aHiIcdUpLUUIwZy8xK3NUbHExbnBMOGNBTFBrd2JVPWVN3CW4wj4CYAUSjgEIARKJAQoceXhKLzZmdmtlY3I3a3A1RVF6QjR0V0xwZGJFPRIkM2I2ZWZmOTYtMWE3Ny01NGZkLWI5ODItMWRjYmM0ZWU3NjdmGAAgACgAMKm3lZ/KMDiDwpWfyjBAg8KVn8owShxhUkNXTGdoRjliNUlucUtJRHZ1Si9qdlFrRmM9WgBlAAAAAMI+AmAAEo4BCAISiQEKHFljU1RvbnZFU1B3cUNzNEwyY3JWaHY2OEw5OD0SJGI4YWUyNjhjLTczNGUtNTlkNy05NzlmLTA3YjM0NjcwODJiNhgAIAAoADCqt5WfyjA4osKVn8owQKLClZ/KMEocb1BWa2h3QlJiVjY1S0NXUjIrSU9OSFdvT3U4PVoAZQAAAADCPgJgABKOAQgFEokBChx3UkJyWkwrNlBBOWF2S2dqTlA3SlhETGNmdnM9EiRmNDI2NDQxZi0zMmVkLTUzODYtYjMzZC0yOTIwMTM2NjFiNmIYACAAKAAwor6fj6ozOMjAn4+qM0DIwJ+PqjNKHG5teDY1c1FEdnhJOFRnRWV2K0ErbnR0b1NuND1aAGUAAAAAwj4CYAASjgEIAxKJAQocbmpnRHU4OGVDcnZYcDg2cEQ3ZkhHY3FGcDg4PRIkZjBlYTBmM2ItOTliNi01YWYxLTlmYTEtMWE1ZGJlZmIwZGJlGAAgACgAMK+3lZ/KMDjOw5WfyjBAzsOVn8owShx5ek5CMDFjbjU0QTdjUlUwdVQrL1BnbVR0VW89WgBlAAAAAMI+AmAAMAA4AA==",
+   "version": 1
+}
