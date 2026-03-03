@@ -1,32 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../cekirdek/sabitler/renkler.dart';
+import '../../cekirdek/servisler/auth_servisi.dart';
 
 class ProfilEkrani extends StatelessWidget {
   const ProfilEkrani({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final User? kullanici = FirebaseAuth.instance.currentUser;
+    final AuthServisi authServisi = AuthServisi();
+
     return Scaffold(
       backgroundColor: UygulamaRenkleri.arkaPlan,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text("Profilim", style: TextStyle(color: UygulamaRenkleri.anaYaziRengi, fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Profilim",
+          style: TextStyle(color: UygulamaRenkleri.anaYaziRengi, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout_rounded, color: UygulamaRenkleri.ikincilYaziRengi),
+            onPressed: () => _cikisOnayla(context, authServisi),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             // Profil Özeti
-            const CircleAvatar(
+            CircleAvatar(
               radius: 50,
-              backgroundImage: NetworkImage('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'),
+              backgroundImage: kullanici?.photoURL != null
+                  ? NetworkImage(kullanici!.photoURL!)
+                  : null,
+              backgroundColor: UygulamaRenkleri.adacayiYesili.withOpacity(0.2),
+              child: kullanici?.photoURL == null
+                  ? const Icon(
+                      Icons.person_rounded,
+                      size: 50,
+                      color: UygulamaRenkleri.adacayiYesili,
+                    )
+                  : null,
             ),
             const SizedBox(height: 15),
-            const Text(
-              "Burak Güldal",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: UygulamaRenkleri.anaYaziRengi),
+            Text(
+              kullanici?.displayName ?? 'Misafir',
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: UygulamaRenkleri.anaYaziRengi,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              kullanici?.email ?? '',
+              style: const TextStyle(color: UygulamaRenkleri.ikincilYaziRengi),
             ),
             const SizedBox(height: 5),
             Text(
@@ -92,8 +125,53 @@ class ProfilEkrani extends StatelessWidget {
                 _rozetOgesi("Odaklanma", Icons.center_focus_strong, true),
               ],
             ),
+            const SizedBox(height: 30),
+
+            // Çıkış Butonu
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _cikisOnayla(context, authServisi),
+                icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
+                label: const Text(
+                  'Çıkış Yap',
+                  style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  side: const BorderSide(color: Colors.redAccent),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _cikisOnayla(BuildContext context, AuthServisi authServisi) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Çıkış Yap', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Hesabından çıkmak istediğine emin misin?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('İptal', style: TextStyle(color: UygulamaRenkleri.ikincilYaziRengi)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              authServisi.cikisYap();
+            },
+            child: const Text('Çıkış Yap', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
       ),
     );
   }
@@ -101,7 +179,14 @@ class ProfilEkrani extends StatelessWidget {
   Widget _bolumBasligi(String baslik) {
     return Row(
       children: [
-        Text(baslik, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UygulamaRenkleri.anaYaziRengi)),
+        Text(
+          baslik,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: UygulamaRenkleri.anaYaziRengi,
+          ),
+        ),
       ],
     );
   }
