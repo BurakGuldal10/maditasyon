@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../../../cekirdek/sabitler/renkler.dart';
 import '../../../veri/modeller/uyku_modeli.dart';
 import 'uyku_sesleri_ekrani.dart';
+import 'uyku_hikaye_ekrani.dart';
 
 class UykuTakibiEkrani extends StatefulWidget {
   const UykuTakibiEkrani({super.key});
@@ -29,7 +30,7 @@ class _UykuTakibiEkraniState extends State<UykuTakibiEkrani>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _ornekVeriEkle();
   }
 
@@ -350,12 +351,13 @@ class _UykuTakibiEkraniState extends State<UykuTakibiEkrani>
           tabs: const [
             Tab(icon: Icon(Icons.add_circle_outline), text: "Kayıt"),
             Tab(icon: Icon(Icons.history_rounded), text: "Geçmiş"),
+            Tab(icon: Icon(Icons.menu_book_rounded), text: "Hikayeler"),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [_kayitSekmesi(), _gecmisSekmesi()],
+        children: [_kayitSekmesi(), _gecmisSekmesi(), const UykuHikayeleriSekmesi()],
       ),
     );
   }
