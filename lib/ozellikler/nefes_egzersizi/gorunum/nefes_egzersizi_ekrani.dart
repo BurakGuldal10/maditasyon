@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../../../cekirdek/sabitler/renkler.dart';
 import '../../gunluk/gorunum/gunluk_ekrani.dart';
 
 class NefesEgzersiziEkrani extends StatefulWidget {
@@ -13,7 +12,10 @@ class NefesEgzersiziEkrani extends StatefulWidget {
 class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _sizeAnimation;
-  
+
+  static const Color _anaRenk = Color(0xFF0EA5E9);
+  static const Color _acikRenk = Color(0xFF38BDF8);
+
   String _selectedMode = "Rahatlama";
   String _selectedDifficulty = "Başlangıç";
   String _statusText = "Hazır mısın?";
@@ -33,7 +35,6 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
     );
   }
 
-  // Mod ve Zorluğa göre süreleri belirle
   Map<String, int> _getDurations() {
     double multiplier = 1.0;
     if (_selectedDifficulty == "Orta") multiplier = 1.5;
@@ -46,7 +47,6 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
       int s = (3 * multiplier).round();
       return {"al": s, "tut1": 0, "ver": (1 * multiplier).round(), "tut2": 0};
     } else {
-      // Rahatlama (Varsayılan)
       return {
         "al": (4 * multiplier).round(),
         "tut1": (2 * multiplier).round(),
@@ -65,19 +65,15 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
 
   Future<void> _startCountdown(int seconds) async {
     if (seconds <= 0) return;
-    
     setState(() => _remainingSeconds = seconds);
     _countdownTimer?.cancel();
-    
     Completer<void> completer = Completer<void>();
-    
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted || !_isActive) {
         timer.cancel();
         if (!completer.isCompleted) completer.complete();
         return;
       }
-      
       if (_remainingSeconds > 1) {
         setState(() => _remainingSeconds--);
       } else {
@@ -85,23 +81,19 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
         if (!completer.isCompleted) completer.complete();
       }
     });
-    
     return completer.future;
   }
 
   void _runCycle() async {
     if (!_isActive) return;
-
     final durations = _getDurations();
 
-    // 1. Nefes Al
     if (!_isActive) return;
     setState(() => _statusText = "Nefes Al");
     _animationController.duration = Duration(seconds: durations["al"]!);
     _animationController.forward();
     await _startCountdown(durations["al"]!);
 
-    // 2. Tut (Nefes sonrası)
     if (!_isActive) return;
     if (durations["tut1"]! > 0) {
       setState(() {
@@ -111,14 +103,12 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
       await _startCountdown(durations["tut1"]!);
     }
 
-    // 3. Nefes Ver
     if (!_isActive) return;
     setState(() => _statusText = "Nefes Ver");
     _animationController.duration = Duration(seconds: durations["ver"]!);
     _animationController.reverse();
     await _startCountdown(durations["ver"]!);
 
-    // 4. Tut (Nefes sonrası - Sadece Kare Nefesi vb.)
     if (!_isActive) return;
     if (durations["tut2"]! > 0) {
       setState(() {
@@ -128,7 +118,6 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
       await _startCountdown(durations["tut2"]!);
     }
 
-    // Döngüyü tekrarla
     if (_isActive) _runCycle();
   }
 
@@ -149,14 +138,71 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
     super.dispose();
   }
 
+  Widget _chipSatiri(String baslik, List<String> secenekler, String secili, void Function(String) onSec) {
+    return Column(
+      children: [
+        Text(
+          baslik,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF64748B),
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 10),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: secenekler.map((s) {
+              final aktif = secili == s;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: GestureDetector(
+                  onTap: () => onSec(s),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: aktif ? _anaRenk : Colors.white,
+                      borderRadius: BorderRadius.circular(25),
+                      border: Border.all(
+                        color: aktif ? _anaRenk : const Color(0xFFCBE4F5),
+                      ),
+                      boxShadow: aktif
+                          ? [BoxShadow(color: _anaRenk.withOpacity(0.25), blurRadius: 10, offset: const Offset(0, 4))]
+                          : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6)],
+                    ),
+                    child: Text(
+                      s,
+                      style: TextStyle(
+                        color: aktif ? Colors.white : const Color(0xFF475569),
+                        fontWeight: aktif ? FontWeight.bold : FontWeight.normal,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: UygulamaRenkleri.arkaPlan,
+      backgroundColor: const Color(0xFFE0F2FE),
       appBar: AppBar(
-        title: const Text("Nefes Egzersizi", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Nefes Egzersizi",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0C4A6E)),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF0C4A6E)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.pop(context),
@@ -167,55 +213,30 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (!_isActive) ...[
-              // Mod Seçimi
-              const Text("Mod Seçin", style: TextStyle(fontWeight: FontWeight.w600, color: UygulamaRenkleri.ikincilYaziRengi)),
-              const SizedBox(height: 10),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: ["Rahatlama", "Kare Nefesi", "Enerji"].map((mode) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: ChoiceChip(
-                        label: Text(mode),
-                        selected: _selectedMode == mode,
-                        onSelected: (val) {
-                          if (val) setState(() => _selectedMode = mode);
-                        },
-                        selectedColor: UygulamaRenkleri.adacayiYesili,
-                        labelStyle: TextStyle(color: _selectedMode == mode ? Colors.white : Colors.black87),
-                      ),
-                    );
-                  }).toList(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    _chipSatiri(
+                      "Mod Seçin",
+                      ["Rahatlama", "Kare Nefesi", "Enerji"],
+                      _selectedMode,
+                      (s) => setState(() => _selectedMode = s),
+                    ),
+                    const SizedBox(height: 20),
+                    _chipSatiri(
+                      "Zorluk Seviyesi",
+                      ["Başlangıç", "Orta", "İleri"],
+                      _selectedDifficulty,
+                      (s) => setState(() => _selectedDifficulty = s),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20),
-              
-              // Zorluk Seviyesi Seçici
-              const Text("Zorluk Seviyesi", style: TextStyle(fontWeight: FontWeight.w600, color: UygulamaRenkleri.ikincilYaziRengi)),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: ["Başlangıç", "Orta", "İleri"].map((diff) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: ChoiceChip(
-                      label: Text(diff),
-                      selected: _selectedDifficulty == diff,
-                      onSelected: (val) {
-                        if (val) setState(() => _selectedDifficulty = diff);
-                      },
-                      selectedColor: UygulamaRenkleri.adacayiYesili.withOpacity(0.7),
-                      labelStyle: TextStyle(color: _selectedDifficulty == diff ? Colors.white : Colors.black87),
-                    ),
-                  );
-                }).toList(),
-              ),
             ],
-            
+
             const Spacer(),
-            
+
             // Animasyonlu Nefes Dairesi
             AnimatedBuilder(
               animation: _sizeAnimation,
@@ -225,11 +246,11 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
                   height: _sizeAnimation.value,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: UygulamaRenkleri.adacayiYesili.withOpacity(0.15),
-                    border: Border.all(color: UygulamaRenkleri.adacayiYesili.withOpacity(0.5), width: 2),
+                    color: _acikRenk.withOpacity(0.18),
+                    border: Border.all(color: _anaRenk.withOpacity(0.5), width: 2.5),
                     boxShadow: [
                       BoxShadow(
-                        color: UygulamaRenkleri.adacayiYesili.withOpacity(0.1),
+                        color: _anaRenk.withOpacity(0.15),
                         blurRadius: 40,
                         spreadRadius: 10,
                       ),
@@ -243,9 +264,9 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
                           _statusText,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: _isActive ? 24 : 18, 
-                            fontWeight: FontWeight.bold, 
-                            color: UygulamaRenkleri.anaYaziRengi
+                            fontSize: _isActive ? 24 : 18,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF0C4A6E),
                           ),
                         ),
                         if (_isActive && _remainingSeconds > 0) ...[
@@ -253,9 +274,9 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
                           Text(
                             "$_remainingSeconds",
                             style: const TextStyle(
-                              fontSize: 48, 
-                              fontWeight: FontWeight.w300, 
-                              color: UygulamaRenkleri.adacayiYesili
+                              fontSize: 48,
+                              fontWeight: FontWeight.w300,
+                              color: _anaRenk,
                             ),
                           ),
                         ],
@@ -265,9 +286,9 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
                 );
               },
             ),
-            
+
             const Spacer(),
-            
+
             // Başlat/Durdur Butonu
             Padding(
               padding: const EdgeInsets.only(bottom: 50),
@@ -279,11 +300,11 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
                       duration: const Duration(milliseconds: 300),
                       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 18),
                       decoration: BoxDecoration(
-                        color: _isActive ? Colors.red[400] : UygulamaRenkleri.adacayiYesili,
+                        color: _isActive ? const Color(0xFFEF4444) : _anaRenk,
                         borderRadius: BorderRadius.circular(35),
                         boxShadow: [
                           BoxShadow(
-                            color: (_isActive ? Colors.red[400]! : UygulamaRenkleri.adacayiYesili).withOpacity(0.3),
+                            color: (_isActive ? const Color(0xFFEF4444) : _anaRenk).withOpacity(0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),
@@ -301,8 +322,11 @@ class _NefesEgzersiziEkraniState extends State<NefesEgzersiziEkrani> with Single
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const GunlukEkrani()));
                       },
-                      icon: const Icon(Icons.edit_note, color: UygulamaRenkleri.adacayiYesili),
-                      label: const Text("Hislerini Not Et", style: TextStyle(color: UygulamaRenkleri.adacayiYesili, fontSize: 16)),
+                      icon: const Icon(Icons.edit_note, color: _anaRenk),
+                      label: const Text(
+                        "Hislerini Not Et",
+                        style: TextStyle(color: _anaRenk, fontSize: 16),
+                      ),
                     ),
                   ],
                 ],

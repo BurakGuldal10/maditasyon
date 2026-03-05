@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:just_audio/just_audio.dart';
 import '../../../cekirdek/sabitler/renkler.dart';
+import '../../../cekirdek/servisler/ses_servisi.dart';
 
 class UykuSesleriEkrani extends StatefulWidget {
   const UykuSesleriEkrani({super.key});
@@ -16,6 +18,9 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
   int _kalanSaniye = 0;
   Timer? _zamanlayici;
   bool _calisiyor = false;
+  bool _sesYukleniyor = false;
+
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   late AnimationController _animController;
   late Animation<double> _pulseAnimation;
@@ -24,44 +29,44 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
     {
       "isim": "Yağmur",
       "ikon": Icons.water_drop_rounded,
-      "renk1": Color(0xFF4A90D9),
-      "renk2": Color(0xFF2C5F8A),
+      "renk": Color(0xFF1454A0),
       "aciklama": "Hafif yağmur sesi",
+      "depolamaYolu": "sesler/yagmur/hafif_yagmur.mp3",
     },
     {
       "isim": "Okyanus",
       "ikon": Icons.waves_rounded,
-      "renk1": Color(0xFF1CBBB4),
-      "renk2": Color(0xFF0E7A76),
+      "renk": Color(0xFF1A73E8),
       "aciklama": "Dalga sesleri",
+      "depolamaYolu": "sesler/doga/okyanus.mp3",
     },
     {
       "isim": "Orman",
       "ikon": Icons.forest_rounded,
-      "renk1": Color(0xFF4CAF50),
-      "renk2": Color(0xFF2E7D32),
+      "renk": Color(0xFF2E7D32),
       "aciklama": "Kuş ve doğa sesleri",
+      "depolamaYolu": "sesler/uyku/orman.mp3",
     },
     {
       "isim": "Şömine",
       "ikon": Icons.fireplace_rounded,
-      "renk1": Color(0xFFFF7043),
-      "renk2": Color(0xFFD84315),
+      "renk": Color(0xFFC62828),
       "aciklama": "Çıtırdayan ateş",
+      "depolamaYolu": "sesler/uyku/ates.mp3",
     },
     {
       "isim": "Gece Böcekleri",
       "ikon": Icons.dark_mode_rounded,
-      "renk1": Color(0xFF7E57C2),
-      "renk2": Color(0xFF4527A0),
+      "renk": Color(0xFFF9A825),
       "aciklama": "Cırcır böcekleri",
+      "depolamaYolu": "sesler/uyku/gece_bocegi.mp3",
     },
     {
       "isim": "Beyaz Gürültü",
       "ikon": Icons.graphic_eq_rounded,
-      "renk1": Color(0xFF78909C),
-      "renk2": Color(0xFF455A64),
+      "renk": Color(0xFF546E7A),
       "aciklama": "Sakin beyaz gürültü",
+      "depolamaYolu": "sesler/odak/beyaz_gurultu.mp3",
     },
   ];
 
@@ -82,42 +87,58 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
   @override
   void dispose() {
     _zamanlayici?.cancel();
+    _audioPlayer.dispose();
     _animController.dispose();
     super.dispose();
   }
 
-  void _sesiToggle(String sesIsmi) {
-    setState(() {
-      if (_aktifSes == sesIsmi) {
-        // Aynı sese tekrar dokunursa durdur
-        _sesiDurdur();
-      } else {
-        _aktifSes = sesIsmi;
-        _sesiBaslat();
-      }
-    });
-  }
+  Future<void> _sesiToggle(Map<String, dynamic> ses) async {
+    final isim = ses["isim"] as String;
+    if (_aktifSes == isim) {
+      _sesiDurdur();
+      return;
+    }
 
-  void _sesiBaslat() {
+    // Önceki sesi durdur
+    await _audioPlayer.stop();
     _zamanlayici?.cancel();
-    _calisiyor = true;
-    _kalanSaniye = _seciliZamanDakika * 60;
-    _animController.repeat(reverse: true);
 
+    setState(() {
+      _aktifSes = isim;
+      _calisiyor = true;
+      _kalanSaniye = _seciliZamanDakika * 60;
+      _sesYukleniyor = true;
+    });
+
+    _animController.repeat(reverse: true);
     _zamanlayici = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
+      if (!mounted) { timer.cancel(); return; }
       if (_kalanSaniye > 0) {
         setState(() => _kalanSaniye--);
       } else {
         _sesiDurdur();
       }
     });
+
+    try {
+      final url = await SesServisi().storageUrlAl(ses["depolamaYolu"] as String);
+      await _audioPlayer.setUrl(url);
+      await _audioPlayer.setLoopMode(LoopMode.one);
+      _audioPlayer.play();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Ses yüklenemedi, bağlantını kontrol et")),
+        );
+        _sesiDurdur();
+      }
+    } finally {
+      if (mounted) setState(() => _sesYukleniyor = false);
+    }
   }
 
   void _sesiDurdur() {
+    _audioPlayer.stop();
     _zamanlayici?.cancel();
     _animController.stop();
     _animController.reset();
@@ -125,6 +146,7 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
       _aktifSes = null;
       _calisiyor = false;
       _kalanSaniye = 0;
+      _sesYukleniyor = false;
     });
   }
 
@@ -178,9 +200,7 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
                           child: GestureDetector(
                             onTap: _calisiyor
                                 ? null
-                                : () {
-                                    setState(() => _seciliZamanDakika = dakika);
-                                  },
+                                : () => setState(() => _seciliZamanDakika = dakika),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.symmetric(
@@ -194,17 +214,13 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
                                 borderRadius: BorderRadius.circular(25),
                                 border: secili
                                     ? null
-                                    : Border.all(
-                                        color: Colors.white.withOpacity(0.1),
-                                      ),
+                                    : Border.all(color: Colors.white.withOpacity(0.1)),
                               ),
                               child: Text(
                                 "$dakika dk",
                                 style: TextStyle(
                                   color: secili ? Colors.white : Colors.white54,
-                                  fontWeight: secili
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
+                                  fontWeight: secili ? FontWeight.bold : FontWeight.normal,
                                 ),
                               ),
                             ),
@@ -257,7 +273,6 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
       ),
       child: Row(
         children: [
-          // Nabız animasyonu
           ScaleTransition(
             scale: _pulseAnimation,
             child: Container(
@@ -267,11 +282,15 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
                 shape: BoxShape.circle,
                 color: UygulamaRenkleri.uykuMoru.withOpacity(0.3),
               ),
-              child: const Icon(
-                Icons.music_note_rounded,
-                color: Colors.white,
-                size: 24,
-              ),
+              child: _sesYukleniyor
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.music_note_rounded, color: Colors.white, size: 24),
             ),
           ),
           const SizedBox(width: 15),
@@ -289,7 +308,7 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Kalan: ${_kalanSureFormati()}",
+                  _sesYukleniyor ? "Yükleniyor..." : "Kalan: ${_kalanSureFormati()}",
                   style: const TextStyle(color: Colors.white54, fontSize: 14),
                 ),
               ],
@@ -313,30 +332,23 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
 
   Widget _sesKarti(Map<String, dynamic> ses) {
     final aktif = _aktifSes == ses["isim"];
+    final yukleniyor = aktif && _sesYukleniyor;
 
+    final renk = ses["renk"] as Color;
     return GestureDetector(
-      onTap: () => _sesiToggle(ses["isim"]),
+      onTap: () => _sesiToggle(ses),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: aktif
-                ? [ses["renk1"] as Color, ses["renk2"] as Color]
-                : [
-                    Colors.white.withOpacity(0.08),
-                    Colors.white.withOpacity(0.03),
-                  ],
-          ),
+          color: aktif ? renk : Colors.white.withOpacity(0.06),
           borderRadius: BorderRadius.circular(25),
-          border: aktif
-              ? null
-              : Border.all(color: Colors.white.withOpacity(0.08)),
+          border: Border.all(
+            color: aktif ? renk : Colors.white.withOpacity(0.08),
+          ),
           boxShadow: aktif
               ? [
                   BoxShadow(
-                    color: (ses["renk1"] as Color).withOpacity(0.3),
+                    color: renk.withOpacity(0.35),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -348,11 +360,21 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                ses["ikon"] as IconData,
-                size: 40,
-                color: aktif ? Colors.white : Colors.white54,
-              ),
+              if (yukleniyor)
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(renk),
+                  ),
+                )
+              else
+                Icon(
+                  ses["ikon"] as IconData,
+                  size: 40,
+                  color: aktif ? Colors.white : Colors.white54,
+                ),
               const SizedBox(height: 12),
               Text(
                 ses["isim"] as String,
@@ -371,7 +393,7 @@ class _UykuSesleriEkraniState extends State<UykuSesleriEkrani>
                 ),
                 textAlign: TextAlign.center,
               ),
-              if (aktif) ...[
+              if (aktif && !yukleniyor) ...[
                 const SizedBox(height: 8),
                 const Icon(
                   Icons.pause_circle_filled_rounded,

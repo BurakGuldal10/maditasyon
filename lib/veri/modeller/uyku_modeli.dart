@@ -16,6 +16,24 @@ class UykuKaydi {
     this.not,
   });
 
+  Map<String, dynamic> toJson() => {
+        'tarih': tarih.toIso8601String(),
+        'yatisSaati': yatisSaati,
+        'uyanmaSaati': uyanmaSaati,
+        'uykuSuresiDakika': uykuSuresi.inMinutes,
+        'kalitePuani': kalitePuani,
+        'not': not,
+      };
+
+  factory UykuKaydi.fromJson(Map<String, dynamic> json) => UykuKaydi(
+        tarih: DateTime.parse(json['tarih'] as String),
+        yatisSaati: json['yatisSaati'] as String,
+        uyanmaSaati: json['uyanmaSaati'] as String,
+        uykuSuresi: Duration(minutes: json['uykuSuresiDakika'] as int),
+        kalitePuani: json['kalitePuani'] as int,
+        not: json['not'] as String?,
+      );
+
   /// Saat ve dakikayı "X sa Y dk" formatında döndürür
   String get sureBilgisi {
     final saat = uykuSuresi.inHours;

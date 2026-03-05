@@ -12,7 +12,9 @@ class OynaticiParcasi {
   final String isim;
   final String altBaslik;
   final IconData ikon;
-  final String? url; // null = yakında eklenecek
+  /// Firebase Storage yolu — örn: 'sesler/yagmur/hafif_yagmur.mp3'
+  /// null = yakında eklenecek
+  final String? depolamaYolu;
   final bool dongulu;
   final String sureEtiketi;
 
@@ -21,7 +23,7 @@ class OynaticiParcasi {
     required this.isim,
     required this.altBaslik,
     required this.ikon,
-    this.url,
+    this.depolamaYolu,
     this.dongulu = true,
     this.sureEtiketi = '∞',
   });
@@ -47,10 +49,11 @@ class SesKategorisi {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CATEGORY & TRACK DATA
-// URL alanları boş — bir sonraki adımda ses dosyası formatını konuşup ekleyeceğiz
+// Firebase Storage yolları: sesler/{kategori}/{dosya}.mp3
 // ─────────────────────────────────────────────────────────────────────────────
 
 const List<SesKategorisi> _kategoriler = [
+  // ── 🌧️ YAĞMUR (4 parça) ────────────────────────────────────────────────
   SesKategorisi(
     id: 'yagmur',
     isim: 'Yağmur',
@@ -60,31 +63,28 @@ const List<SesKategorisi> _kategoriler = [
     parcalar: [
       OynaticiParcasi(
         id: 'y1', isim: 'Hafif Yağmur', altBaslik: 'Dinlendirici',
-        ikon: Icons.grain_rounded, url: null,
+        ikon: Icons.grain_rounded,
+        depolamaYolu: 'sesler/yagmur/hafif_yagmur.mp3',
       ),
       OynaticiParcasi(
-        id: 'y2', isim: 'Gök Gürültüsü', altBaslik: 'Güçlü Fırtına',
-        ikon: Icons.thunderstorm_rounded, url: null,
+        id: 'y2', isim: 'Yağmur', altBaslik: 'Sürekli Yağış',
+        ikon: Icons.water_rounded,
+        depolamaYolu: 'sesler/yagmur/yagmur.mp3',
       ),
       OynaticiParcasi(
-        id: 'y3', isim: 'Çatıya Yağmur', altBaslik: 'Sıcak & Rahat',
-        ikon: Icons.cottage_rounded, url: null,
+        id: 'y3', isim: 'Gök Gürültüsü', altBaslik: 'Güçlü Fırtına',
+        ikon: Icons.thunderstorm_rounded,
+        depolamaYolu: 'sesler/yagmur/gok_gurultusu.mp3',
       ),
       OynaticiParcasi(
-        id: 'y4', isim: 'Yağmurlu Orman', altBaslik: 'Doğa & Yağmur',
-        ikon: Icons.forest_rounded, url: null,
-      ),
-      OynaticiParcasi(
-        id: 'y5', isim: 'Sağanak', altBaslik: 'Yoğun Yağış',
-        ikon: Icons.water_rounded, url: null,
-      ),
-      OynaticiParcasi(
-        id: 'y6', isim: 'Şehir Yağmuru', altBaslik: 'Kent Melodisi',
-        ikon: Icons.location_city_rounded, url: null,
+        id: 'y4', isim: 'Hafif Fırtına', altBaslik: 'Rüzgar & Yağmur',
+        ikon: Icons.cyclone_rounded,
+        depolamaYolu: 'sesler/yagmur/hafif_firtina.mp3',
       ),
     ],
   ),
 
+  // ── 🌿 DOĞA (6 parça) ──────────────────────────────────────────────────
   SesKategorisi(
     id: 'doga',
     isim: 'Doğa',
@@ -93,32 +93,44 @@ const List<SesKategorisi> _kategoriler = [
     aksanRengi: Color(0xFF4ADE80),
     parcalar: [
       OynaticiParcasi(
-        id: 'd1', isim: 'Okyanus Dalgaları', altBaslik: 'Sakinleştirici',
-        ikon: Icons.waves_rounded, url: null,
+        id: 'd1', isim: 'Okyanus', altBaslik: 'Sakinleştirici Dalgalar',
+        ikon: Icons.waves_rounded,
+        depolamaYolu: 'sesler/doga/okyanus.mp3',
       ),
       OynaticiParcasi(
-        id: 'd2', isim: 'Orman Kuşları', altBaslik: 'Sabah Neşesi',
-        ikon: Icons.eco_rounded, url: null,
+        id: 'd2', isim: 'Orman', altBaslik: 'Huzurlu Doğa',
+        ikon: Icons.forest_rounded,
+        depolamaYolu: 'sesler/doga/orman.mp3',
       ),
       OynaticiParcasi(
-        id: 'd3', isim: 'Şelale', altBaslik: 'Taze & Canlı',
-        ikon: Icons.water_drop_rounded, url: null,
+        id: 'd3', isim: 'Kuş Sesi', altBaslik: 'Sabah Neşesi',
+        ikon: Icons.eco_rounded,
+        depolamaYolu: 'sesler/doga/kus_sesi.mp3',
       ),
       OynaticiParcasi(
-        id: 'd4', isim: 'Dere Sesi', altBaslik: 'Akış & Huzur',
-        ikon: Icons.stream_rounded, url: null,
+        id: 'd4', isim: 'Baykuş', altBaslik: 'Gece Melodisi',
+        ikon: Icons.dark_mode_rounded,
+        depolamaYolu: 'sesler/doga/baykus.mp3',
       ),
       OynaticiParcasi(
-        id: 'd5', isim: 'Rüzgar', altBaslik: 'Hafif Esinti',
-        ikon: Icons.air_rounded, url: null,
+        id: 'd5', isim: 'Gece Böceği', altBaslik: 'Sıcak Yaz Gecesi',
+        ikon: Icons.nightlight_round,
+        depolamaYolu: 'sesler/doga/gece_bocegi.mp3',
       ),
       OynaticiParcasi(
-        id: 'd6', isim: 'Kamp Ateşi', altBaslik: 'Sıcak & Sakin',
-        ikon: Icons.local_fire_department_rounded, url: null,
+        id: 'd6', isim: 'Kedi', altBaslik: 'Rahatlatıcı Miyav',
+        ikon: Icons.pets_rounded,
+        depolamaYolu: 'sesler/doga/kedi.mp3',
+      ),
+      OynaticiParcasi(
+        id: 'd7', isim: 'Kumru', altBaslik: 'Doğadan Güvercin',
+        ikon: Icons.flutter_dash_rounded,
+        depolamaYolu: 'sesler/doga/kumur.mp3',
       ),
     ],
   ),
 
+  // ── 🎵 ENSTRÜMAN (8 parça) ─────────────────────────────────────────────
   SesKategorisi(
     id: 'enstruman',
     isim: 'Enstrüman',
@@ -128,31 +140,53 @@ const List<SesKategorisi> _kategoriler = [
     parcalar: [
       OynaticiParcasi(
         id: 'e1', isim: 'Sakin Piyano', altBaslik: 'Huzur Melodisi',
-        ikon: Icons.piano_rounded, dongulu: false, sureEtiketi: '8 dk', url: null,
+        ikon: Icons.piano_rounded, dongulu: false,
+        depolamaYolu: 'sesler/ensturman/sakin_piyano.mp3',
       ),
       OynaticiParcasi(
-        id: 'e2', isim: 'Akustik Gitar', altBaslik: 'Sıcak Tonlar',
-        ikon: Icons.music_note_rounded, dongulu: false, sureEtiketi: '6 dk', url: null,
+        id: 'e2', isim: 'Flüt', altBaslik: 'Ruh Yolculuğu',
+        ikon: Icons.queue_music_rounded, dongulu: false,
+        depolamaYolu: 'sesler/ensturman/flut.mp3',
       ),
       OynaticiParcasi(
         id: 'e3', isim: 'Tibet Kasesi', altBaslik: 'Şifa Titreşimleri',
-        ikon: Icons.radio_button_unchecked_rounded, url: null,
+        ikon: Icons.radio_button_unchecked_rounded,
+        depolamaYolu: 'sesler/ensturman/tibet_kasesi.mp3',
       ),
       OynaticiParcasi(
-        id: 'e4', isim: 'Meditasyon Flütü', altBaslik: 'Ruh Yolculuğu',
-        ikon: Icons.queue_music_rounded, dongulu: false, sureEtiketi: '7 dk', url: null,
+        id: 'e4', isim: 'Zil Sesleri', altBaslik: 'Arındırıcı Ton',
+        ikon: Icons.notifications_rounded,
+        depolamaYolu: 'sesler/ensturman/ziller.mp3',
       ),
       OynaticiParcasi(
-        id: 'e5', isim: 'Çello Melodisi', altBaslik: 'Derin Duygular',
-        ikon: Icons.library_music_rounded, dongulu: false, sureEtiketi: '9 dk', url: null,
+        id: 'e5', isim: 'Keman', altBaslik: 'Derin Duygular',
+        ikon: Icons.library_music_rounded, dongulu: false,
+        depolamaYolu: 'sesler/ensturman/keman.mp3',
       ),
       OynaticiParcasi(
-        id: 'e6', isim: 'Kristal Keman', altBaslik: 'Hassas & Zarif',
-        ikon: Icons.audiotrack_rounded, dongulu: false, sureEtiketi: '5 dk', url: null,
+        id: 'e6', isim: 'Klasik Keman', altBaslik: 'Zarif & Hassas',
+        ikon: Icons.audiotrack_rounded, dongulu: false,
+        depolamaYolu: 'sesler/ensturman/klasik_keman.mp3',
+      ),
+      OynaticiParcasi(
+        id: 'e7', isim: 'Kalimba & Mantra', altBaslik: 'Tinsel Yolculuk',
+        ikon: Icons.music_note_rounded,
+        depolamaYolu: 'sesler/ensturman/kalimba_mantra.mp3',
+      ),
+      OynaticiParcasi(
+        id: 'e8', isim: 'Çan & Su', altBaslik: 'Doğa ile Armoni',
+        ikon: Icons.water_drop_rounded,
+        depolamaYolu: 'sesler/ensturman/can_ve_su.mp3',
+      ),
+      OynaticiParcasi(
+        id: 'e9', isim: 'Klarnet', altBaslik: 'Zarif Melodi',
+        ikon: Icons.queue_music_rounded, dongulu: false,
+        depolamaYolu: 'sesler/ensturman/klarnet.mp3',
       ),
     ],
   ),
 
+  // ── 😌 RAHATLAMA (6 parça) ─────────────────────────────────────────────
   SesKategorisi(
     id: 'rahatlama',
     isim: 'Rahatlama',
@@ -161,32 +195,39 @@ const List<SesKategorisi> _kategoriler = [
     aksanRengi: Color(0xFFE879F9),
     parcalar: [
       OynaticiParcasi(
-        id: 'r1', isim: '432 Hz', altBaslik: 'Doğal Frekans',
-        ikon: Icons.graphic_eq_rounded, url: null,
+        id: 'r1', isim: 'Kozmik Meditasyon', altBaslik: 'Evrensel Huzur',
+        ikon: Icons.blur_circular_rounded,
+        depolamaYolu: 'sesler/rahatlama/cosmic_meditasyon.mp3',
       ),
       OynaticiParcasi(
-        id: 'r2', isim: 'Kristal Kaseler', altBaslik: 'Ses Banyosu',
-        ikon: Icons.circle_rounded, dongulu: false, sureEtiketi: '12 dk', url: null,
+        id: 'r2', isim: 'Flüt Meditasyon', altBaslik: 'Ruh Dinlendirici',
+        ikon: Icons.queue_music_rounded, dongulu: false,
+        depolamaYolu: 'sesler/rahatlama/flut_meditasyon.mp3',
       ),
       OynaticiParcasi(
-        id: 'r3', isim: 'Binaural Theta', altBaslik: 'Derin Rahatlama',
-        ikon: Icons.waves_rounded, url: null,
+        id: 'r3', isim: 'Ambient Meditasyon', altBaslik: 'Saf Dinginlik',
+        ikon: Icons.graphic_eq_rounded,
+        depolamaYolu: 'sesler/rahatlama/meditasyon_ambient.mp3',
       ),
       OynaticiParcasi(
-        id: 'r4', isim: 'Derin Nefes', altBaslik: 'Nefes ile Ahenk',
-        ikon: Icons.air_rounded, dongulu: false, sureEtiketi: '8 dk', url: null,
+        id: 'r4', isim: 'Enstrümantal Huzur', altBaslik: 'Melodik Rahatlama',
+        ikon: Icons.piano_rounded, dongulu: false,
+        depolamaYolu: 'sesler/rahatlama/meditasyon_instrumental.mp3',
       ),
       OynaticiParcasi(
-        id: 'r5', isim: '528 Hz Şifa', altBaslik: 'Sevgi Frekansı',
-        ikon: Icons.favorite_rounded, url: null,
+        id: 'r5', isim: 'Hafif Doku', altBaslik: 'Yumuşak Atmosfer',
+        ikon: Icons.blur_on_rounded,
+        depolamaYolu: 'sesler/rahatlama/hafif_doku.mp3',
       ),
       OynaticiParcasi(
-        id: 'r6', isim: 'Ambient Huzur', altBaslik: 'Saf Dinginlik',
-        ikon: Icons.blur_on_rounded, url: null,
+        id: 'r6', isim: 'Ateş Sesi', altBaslik: 'Sıcak & Sakin',
+        ikon: Icons.local_fire_department_rounded,
+        depolamaYolu: 'sesler/rahatlama/ates.mp3',
       ),
     ],
   ),
 
+  // ── 🎯 ODAK (3 parça) ──────────────────────────────────────────────────
   SesKategorisi(
     id: 'odak',
     isim: 'Odak',
@@ -195,32 +236,24 @@ const List<SesKategorisi> _kategoriler = [
     aksanRengi: Color(0xFFFBBF24),
     parcalar: [
       OynaticiParcasi(
-        id: 'o1', isim: 'Kahve Dükkanı', altBaslik: 'Arka Plan Gürültüsü',
-        ikon: Icons.coffee_rounded, url: null,
+        id: 'o1', isim: 'Beyaz Gürültü', altBaslik: 'Konsantrasyon',
+        ikon: Icons.radio_rounded,
+        depolamaYolu: 'sesler/odak/beyaz_gurultu.mp3',
       ),
       OynaticiParcasi(
-        id: 'o2', isim: 'Beyaz Gürültü', altBaslik: 'Konsantrasyon',
-        ikon: Icons.radio_rounded, url: null,
+        id: 'o2', isim: 'Şömine Ateşi', altBaslik: 'Sıcak & Odaklı',
+        ikon: Icons.local_fire_department_rounded,
+        depolamaYolu: 'sesler/odak/ates.mp3',
       ),
       OynaticiParcasi(
-        id: 'o3', isim: '40 Hz Gamma', altBaslik: 'Zihin Aktivasyonu',
-        ikon: Icons.bolt_rounded, url: null,
-      ),
-      OynaticiParcasi(
-        id: 'o4', isim: 'Binaural Beta', altBaslik: 'Odaklanma Dalgası',
-        ikon: Icons.ssid_chart_rounded, url: null,
-      ),
-      OynaticiParcasi(
-        id: 'o5', isim: 'Kütüphane', altBaslik: 'Sessiz Üretkenlik',
-        ikon: Icons.menu_book_rounded, url: null,
-      ),
-      OynaticiParcasi(
-        id: 'o6', isim: 'Lo-Fi Beats', altBaslik: 'Yaratıcı Akış',
-        ikon: Icons.headphones_rounded, dongulu: false, sureEtiketi: '∞', url: null,
+        id: 'o3', isim: 'Meditasyon Müziği', altBaslik: 'Sessiz Üretkenlik',
+        ikon: Icons.headphones_rounded, dongulu: false,
+        depolamaYolu: 'sesler/odak/meditasyon_arkaplan.mp3',
       ),
     ],
   ),
 
+  // ── 🌙 UYKU (4 parça) ──────────────────────────────────────────────────
   SesKategorisi(
     id: 'uyku',
     isim: 'Uyku',
@@ -229,28 +262,24 @@ const List<SesKategorisi> _kategoriler = [
     aksanRengi: Color(0xFF818CF8),
     parcalar: [
       OynaticiParcasi(
-        id: 'u1', isim: 'Delta Dalgaları', altBaslik: 'Derin Uyku Frekansı',
-        ikon: Icons.nightlight_round, url: null,
+        id: 'u1', isim: 'Orman Sesleri', altBaslik: 'Doğa & Sessizlik',
+        ikon: Icons.forest_rounded,
+        depolamaYolu: 'sesler/uyku/orman.mp3',
       ),
       OynaticiParcasi(
-        id: 'u2', isim: 'Uyku Melodisi', altBaslik: 'Yumuşak Geçiş',
-        ikon: Icons.bedtime_rounded, dongulu: false, sureEtiketi: '45 dk', url: null,
+        id: 'u2', isim: 'Şömine Ateşi', altBaslik: 'Sıcak & Huzurlu',
+        ikon: Icons.local_fire_department_rounded,
+        depolamaYolu: 'sesler/uyku/ates.mp3',
       ),
       OynaticiParcasi(
-        id: 'u3', isim: 'Gece Sesleri', altBaslik: 'Doğa & Sessizlik',
-        ikon: Icons.dark_mode_rounded, url: null,
+        id: 'u3', isim: 'Flüt Ninnisi', altBaslik: 'Nazik Melodi',
+        ikon: Icons.bedtime_rounded, dongulu: false,
+        depolamaYolu: 'sesler/uyku/flut.mp3',
       ),
       OynaticiParcasi(
-        id: 'u4', isim: 'Lullaby Piyano', altBaslik: 'Nazik Melodi',
-        ikon: Icons.piano_rounded, dongulu: false, sureEtiketi: '30 dk', url: null,
-      ),
-      OynaticiParcasi(
-        id: 'u5', isim: 'Derin Uyku', altBaslik: 'Binaural Delta',
-        ikon: Icons.cloud_rounded, url: null,
-      ),
-      OynaticiParcasi(
-        id: 'u6', isim: 'Nefes & Uyku', altBaslik: 'Yavaşla & Bırak',
-        ikon: Icons.air_rounded, dongulu: false, sureEtiketi: '20 dk', url: null,
+        id: 'u4', isim: 'Gece Böceği', altBaslik: 'Yaz Gecesi',
+        ikon: Icons.nightlight_round,
+        depolamaYolu: 'sesler/uyku/gece_bocegi.mp3',
       ),
     ],
   ),
@@ -274,6 +303,7 @@ class _OynaticiEkraniState extends State<OynaticiEkrani>
   int _aktifKategoriIndeks = 0;
   OynaticiParcasi? _aktifParca;
   bool _caliyorMu = false;
+  bool _yukleniyor = false;
   StreamSubscription<bool>? _caliyorMuSub;
 
   SesKategorisi get _aktifKategori => _kategoriler[_aktifKategoriIndeks];
@@ -293,7 +323,7 @@ class _OynaticiEkraniState extends State<OynaticiEkrani>
   }
 
   Future<void> _parcayiCal(OynaticiParcasi parca) async {
-    if (parca.url == null) {
+    if (parca.depolamaYolu == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('"${parca.isim}" yakında eklenecek 🎵'),
@@ -306,8 +336,29 @@ class _OynaticiEkraniState extends State<OynaticiEkrani>
       return;
     }
 
-    setState(() => _aktifParca = parca);
-    await _sesServisi.urlCal(parca.url!, loop: parca.dongulu);
+    setState(() {
+      _aktifParca = parca;
+      _yukleniyor = true;
+    });
+
+    try {
+      final url = await _sesServisi.storageUrlAl(parca.depolamaYolu!);
+      await _sesServisi.urlCal(url, loop: parca.dongulu);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('"${parca.isim}" yüklenemedi. Bağlantını kontrol et.'),
+            backgroundColor: Colors.red[700],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+        setState(() => _aktifParca = null);
+      }
+    } finally {
+      if (mounted) setState(() => _yukleniyor = false);
+    }
   }
 
   Future<void> _toggleOynat() async {
@@ -478,6 +529,7 @@ class _OynaticiEkraniState extends State<OynaticiEkrani>
                       kategori: kategori,
                       aktif: aktif,
                       caliyorMu: aktif && _caliyorMu,
+                      yukleniyor: aktif && _yukleniyor,
                       onTap: () => _parcayiCal(parca),
                     );
                   },
@@ -494,6 +546,7 @@ class _OynaticiEkraniState extends State<OynaticiEkrani>
               parca: _aktifParca!,
               kategori: _aktifKategori,
               caliyorMu: _caliyorMu,
+              yukleniyor: _yukleniyor,
               onToggle: _toggleOynat,
               onDurdur: _durdur,
               onTap: _tamEkraniAc,
@@ -512,6 +565,7 @@ class _ParcaKarti extends StatelessWidget {
   final SesKategorisi kategori;
   final bool aktif;
   final bool caliyorMu;
+  final bool yukleniyor;
   final VoidCallback onTap;
 
   const _ParcaKarti({
@@ -519,6 +573,7 @@ class _ParcaKarti extends StatelessWidget {
     required this.kategori,
     required this.aktif,
     required this.caliyorMu,
+    required this.yukleniyor,
     required this.onTap,
   });
 
@@ -571,13 +626,25 @@ class _ParcaKarti extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Icon(parca.ikon,
-                      color: aktif
-                          ? Colors.white
-                          : Colors.white.withValues(alpha: 0.7),
-                      size: 26),
+                  if (yukleniyor)
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          kategori.aksanRengi,
+                        ),
+                      ),
+                    )
+                  else
+                    Icon(parca.ikon,
+                        color: aktif
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.7),
+                        size: 26),
                   // Playing pulse indicator
-                  if (caliyorMu)
+                  if (caliyorMu && !yukleniyor)
                     Positioned(
                       right: 4,
                       top: 4,
@@ -642,7 +709,15 @@ class _ParcaKarti extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (parca.url == null)
+                if (yukleniyor)
+                  Text(
+                    'Yükleniyor...',
+                    style: TextStyle(
+                      color: kategori.aksanRengi.withValues(alpha: 0.7),
+                      fontSize: 10,
+                    ),
+                  )
+                else if (parca.depolamaYolu == null)
                   Text(
                     'Yakında',
                     style: TextStyle(
@@ -679,6 +754,7 @@ class _MiniOynatici extends StatelessWidget {
   final OynaticiParcasi parca;
   final SesKategorisi kategori;
   final bool caliyorMu;
+  final bool yukleniyor;
   final VoidCallback onToggle;
   final VoidCallback onDurdur;
   final VoidCallback onTap;
@@ -687,6 +763,7 @@ class _MiniOynatici extends StatelessWidget {
     required this.parca,
     required this.kategori,
     required this.caliyorMu,
+    required this.yukleniyor,
     required this.onToggle,
     required this.onDurdur,
     required this.onTap,
@@ -726,7 +803,15 @@ class _MiniOynatici extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(parca.ikon, color: Colors.white, size: 22),
+              child: yukleniyor
+                  ? Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Icon(parca.ikon, color: Colors.white, size: 22),
             ),
             const SizedBox(width: 14),
             // Info
@@ -746,7 +831,9 @@ class _MiniOynatici extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    "${kategori.emoji} ${kategori.isim}",
+                    yukleniyor
+                        ? 'Yükleniyor...'
+                        : "${kategori.emoji} ${kategori.isim}",
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.65),
                       fontSize: 12,
@@ -757,12 +844,21 @@ class _MiniOynatici extends StatelessWidget {
             ),
             // Play/Pause
             IconButton(
-              icon: Icon(
-                caliyorMu ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                color: Colors.white,
-                size: 30,
-              ),
-              onPressed: onToggle,
+              icon: yukleniyor
+                  ? SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Icon(
+                      caliyorMu ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+              onPressed: yukleniyor ? null : onToggle,
             ),
             // Stop
             IconButton(
@@ -989,7 +1085,7 @@ class _TamEkranOynaticiState extends State<_TamEkranOynatici>
           ),
           const SizedBox(height: 32),
 
-          // ── Progress bar (only for non-loop tracks with a real URL) ──
+          // ── Progress bar (only for non-loop tracks) ──
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: Column(
@@ -998,7 +1094,7 @@ class _TamEkranOynaticiState extends State<_TamEkranOynatici>
                   data: SliderTheme.of(context).copyWith(
                     trackHeight: 3,
                     thumbShape: RoundSliderThumbShape(
-                      enabledThumbRadius: parca.url != null ? 7 : 0,
+                      enabledThumbRadius: parca.depolamaYolu != null ? 7 : 0,
                     ),
                     overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
                     activeTrackColor: kategori.aksanRengi,
@@ -1007,7 +1103,7 @@ class _TamEkranOynaticiState extends State<_TamEkranOynatici>
                   ),
                   child: Slider(
                     value: parca.dongulu ? 0 : _ilerleme,
-                    onChanged: parca.url != null && !parca.dongulu
+                    onChanged: parca.depolamaYolu != null && !parca.dongulu
                         ? (v) {}
                         : null,
                   ),

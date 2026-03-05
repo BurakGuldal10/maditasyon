@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:just_audio/just_audio.dart';
 
 class SesServisi {
@@ -7,6 +8,19 @@ class SesServisi {
 
   final AudioPlayer _player = AudioPlayer();
   final AudioPlayer _arkaPlanPlayer = AudioPlayer(); // Doğa sesleri için ayrı player
+
+  // Firebase Storage path → download URL cache (session süresince geçerli)
+  final Map<String, String> _urlCache = {};
+
+  /// Firebase Storage yolunu download URL'ye çevirir (önbellekli).
+  Future<String> storageUrlAl(String depolamaYolu) async {
+    if (_urlCache.containsKey(depolamaYolu)) {
+      return _urlCache[depolamaYolu]!;
+    }
+    final url = await FirebaseStorage.instance.ref(depolamaYolu).getDownloadURL();
+    _urlCache[depolamaYolu] = url;
+    return url;
+  }
 
   // İnternet üzerinden bir ses çal
   Future<void> urlCal(String url, {bool loop = false}) async {
