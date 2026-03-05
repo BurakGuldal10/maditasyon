@@ -1,11 +1,14 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../cekirdek/sabitler/renkler.dart';
+import 'package:flutter/services.dart';
 import '../../nefes_egzersizi/gorunum/nefes_egzersizi_ekrani.dart';
 import '../../su_takibi/gorunum/su_takibi_ekrani.dart';
 import '../../uyku_takibi/gorunum/uyku_takibi_ekrani.dart';
 import '../../odaklanma/gorunum/odaklanma_ekrani.dart';
 import '../../gunluk/gorunum/gunluk_ekrani.dart';
 import '../../olumlamalar/gorunum/olumlamalar_ekrani.dart';
+import '../../dinlendirici_metinler/gorunum/dinlendirici_metinler_ekrani.dart';
+import '../../dinlendirici_metinler/gorunum/metin_okuyucu_ekrani.dart';
 
 // Günlük olumlama — tarihe göre değişir
 const List<String> _gunlukOlumlamalar = [
@@ -18,247 +21,704 @@ const List<String> _gunlukOlumlamalar = [
   "Sevgiye ve mutluluğa layığım.",
 ];
 
-class AnaSayfaEkrani extends StatelessWidget {
+class AnaSayfaEkrani extends StatefulWidget {
   const AnaSayfaEkrani({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: UygulamaRenkleri.arkaPlan,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Üst Kısım: Selamlama ve Profil
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Hoş geldin Burak,",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: UygulamaRenkleri.ikincilYaziRengi,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const Text(
-                        "Bugün nasıl hissediyorsun?",
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: UygulamaRenkleri.anaYaziRengi,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const CircleAvatar(
-                    radius: 25,
-                    backgroundColor: UygulamaRenkleri.adacayiYesili,
-                    child: Icon(Icons.person, color: Colors.white),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
+  State<AnaSayfaEkrani> createState() => _AnaSayfaEkraniState();
+}
 
-              // Günün Öne Çıkanı Kartı
-              Container(
-                width: double.infinity,
-                height: 180,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  image: const DecorationImage(
-                    image: NetworkImage('https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      colors: [Colors.black.withOpacity(0.6), Colors.transparent],
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Günün Meditasyonu",
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
-                      ),
-                      Text(
-                        "10 Dakika Odaklanma",
-                        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
+class _AnaSayfaEkraniState extends State<AnaSayfaEkrani> {
+  static final List<DinlendiriciMetin> _onerilens = [
+    dinlendiriciMetinler.firstWhere((m) => m.id == 'm3'),
+    dinlendiriciMetinler.firstWhere((m) => m.id == 'm4'),
+    dinlendiriciMetinler.firstWhere((m) => m.id == 'm6'),
+  ];
 
-              // Günün Olumlamas Kartı
-              GestureDetector(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OlumlamalarEkrani())),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(22),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFFD1C4E9), Color(0xFFB2DFDB)],
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(color: const Color(0xFFB39DDB).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 8)),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.auto_awesome_rounded, size: 14, color: Color(0xFF5E35B1)),
-                                const SizedBox(width: 6),
-                                const Text(
-                                  "Günün Olumlamas",
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF5E35B1)),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              _gunlukOlumlamalar[DateTime.now().day % _gunlukOlumlamalar.length],
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF2D3142), height: 1.5),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.5), shape: BoxShape.circle),
-                        child: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF5E35B1)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
+  static const List<Map<String, dynamic>> _kategoriler = [
+    {'ad': 'Uyku',   'alt': 'Takip & Sesler', 'ikon': Icons.bedtime_rounded,            'renk': Color(0xFF7C3AED)},
+    {'ad': 'Odak',   'alt': 'Konsantrasyon',  'ikon': Icons.center_focus_strong_rounded, 'renk': Color(0xFFDC2626)},
+    {'ad': 'Nefes',  'alt': 'Egzersiz',       'ikon': Icons.air_rounded,                 'renk': Color(0xFF0891B2)},
+    {'ad': 'Su',     'alt': 'Günlük takip',   'ikon': Icons.water_drop_rounded,           'renk': Color(0xFF0284C7)},
+    {'ad': 'Günlük', 'alt': 'Zihin notları',  'ikon': Icons.edit_note_rounded,            'renk': Color(0xFF16A34A)},
+    {'ad': 'Olumla', 'alt': 'Pozitif zihin',  'ikon': Icons.auto_awesome_rounded,       'renk': Color(0xFFD946EF)},
+  ];
 
-              // Kategoriler
-              const Text(
-                "Kategoriler",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 15),
-              SizedBox(
-                height: 100,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _kategoriOgesi(context, "Uyku", Icons.nightlight_round, UygulamaRenkleri.yumusakLavanta, gitUyku: true),
-                    _kategoriOgesi(context, "Su", Icons.water_drop_rounded, Colors.blue[100]!, gitSu: true),
-                    _kategoriOgesi(context, "Odak", Icons.timer_rounded, Colors.amber[100]!, gitOdak: true),
-                    _kategoriOgesi(context, "Günlük", Icons.edit_note_rounded, Colors.orange[100]!, gitGunluk: true),
-                    _kategoriOgesi(context, "Nefes", Icons.air_rounded, Colors.green[100]!, gitNefes: true),
-                    _kategoriOgesi(context, "Olumla", Icons.auto_awesome_rounded, const Color(0xFFE8D5F5), gitOlumla: true),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
+  // Saate göre değişen arka plan ve içerik
+  String get _arkaplanUrl {
+    final h = DateTime.now().hour;
+    if (h < 7) {
+      return 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=900&auto=format&fit=crop';
+    } else if (h < 13) {
+      return 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=900&auto=format&fit=crop';
+    } else if (h < 18) {
+      return 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=900&auto=format&fit=crop';
+    } else {
+      return 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?q=80&w=900&auto=format&fit=crop';
+    }
+  }
 
-              // Senin İçin Seçtiklerimiz
-              const Text(
-                "Senin için seçtiklerimiz",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 15),
-              _onerilenKart("Derin Nefes Egzersizi", "5 Dakika • Rahatlama"),
-              _onerilenKart("Sabah Enerjisi", "12 Dakika • Canlanma"),
-            ],
+  // Overlay gradient koyuluğu
+  List<Color> get _overlayRenkler {
+    final h = DateTime.now().hour;
+    if (h < 7) {
+      return [Colors.black.withValues(alpha: 0.5), Colors.black.withValues(alpha: 0.75)];
+    }
+    return [Colors.black.withValues(alpha: 0.25), Colors.black.withValues(alpha: 0.70)];
+  }
+
+  String get _selamlama {
+    final h = DateTime.now().hour;
+    if (h < 7)  return 'Umarım iyi uyudun 🌙';
+    if (h < 12) return 'Günaydın ☀️';
+    if (h < 18) return 'İyi günler 🌿';
+    return 'İyi akşamlar 🌊';
+  }
+
+  String get _heroBaslik {
+    final h = DateTime.now().hour;
+    if (h < 7)  return 'Gece\nMeditasyonu';
+    if (h < 12) return 'Sabah\nMeditasyonu';
+    if (h < 18) return '10 Dakika\nOdaklanma';
+    return 'Gece\nRahatlaması';
+  }
+
+  String get _heroAlt {
+    final h = DateTime.now().hour;
+    if (h < 7)  return 'Derin ve huzurlu bir uyku için';
+    if (h < 12) return 'Güne pozitif bir enerjiyle başla';
+    if (h < 18) return 'Konsantrasyon · Zihin açma';
+    return 'Günü bırak · Gevşe · Uyu';
+  }
+
+  void _kategoriGit(String ad) {
+    final Map<String, Widget> hedefler = {
+      'Uyku':   const UykuTakibiEkrani(),
+      'Odak':   const OdaklanmaEkrani(),
+      'Nefes':  const NefesEgzersiziEkrani(),
+      'Su':     const SuTakibiEkrani(),
+      'Günlük': const GunlukEkrani(),
+      'Olumla': const OlumlamalarEkrani(),
+    };
+    final ekran = hedefler[ad];
+    if (ekran != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => ekran));
+    }
+  }
+
+  // ── Cam efekti (glassmorphism) ─────────────────────────────
+  Widget _cam({
+    required Widget child,
+    double radius = 22,
+    Color tint = Colors.white,
+    double opaklik = 0.13,
+    double bulaniklik = 14,
+  }) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: bulaniklik, sigmaY: bulaniklik),
+        child: Container(
+          decoration: BoxDecoration(
+            color: tint.withValues(alpha: opaklik),
+            borderRadius: BorderRadius.circular(radius),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.22), width: 1),
           ),
+          child: child,
         ),
       ),
     );
   }
 
-  Widget _kategoriOgesi(BuildContext context, String isim, IconData ikon, Color renk, {bool gitNefes = false, bool gitSu = false, bool gitUyku = false, bool gitOdak = false, bool gitGunluk = false, bool gitOlumla = false}) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 15),
-      child: GestureDetector(
-        onTap: () {
-          if (gitNefes) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const NefesEgzersiziEkrani()));
-          } else if (gitSu) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const SuTakibiEkrani()));
-          } else if (gitUyku) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const UykuTakibiEkrani()));
-          } else if (gitOdak) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const OdaklanmaEkrani()));
-          } else if (gitGunluk) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const GunlukEkrani()));
-          } else if (gitOlumla) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const OlumlamalarEkrani()));
-          }
-        },
-        child: Column(
+  @override
+  Widget build(BuildContext context) {
+    final double w = MediaQuery.of(context).size.width;
+    final double cellW = (w - 48 - 24) / 3;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: const Color(0xFF0A1A0A),
+        body: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(color: renk, borderRadius: BorderRadius.circular(20)),
-              child: Icon(ikon, color: Colors.black54),
+            Positioned.fill(
+              child: Image.network(
+                _arkaplanUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) => Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFF0D2B0D), Color(0xFF061806)],
+                    ),
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(isim, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      _overlayRenkler[0],
+                      Colors.black.withValues(alpha: 0.48),
+                      _overlayRenkler[1],
+                    ],
+                    stops: const [0.0, 0.4, 1.0],
+                  ),
+                ),
+              ),
+            ),
+
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _headerBolumu(),
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _heroKart(),
+                    ),
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _olumlamaKart(),
+                    ),
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _metinlerBanner(),
+                    ),
+                    const SizedBox(height: 30),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _bolumBasligi('Keşfet', 'Tüm özellikler'),
+                          const SizedBox(height: 16),
+                          _kategoriGrid(cellW),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _bolumBasligi('Senin için', 'Özenle seçildi'),
+                    ),
+                    const SizedBox(height: 16),
+                    _onerilenYatay(),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _onerilenKart(String baslik, String altBaslik) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: UygulamaRenkleri.kartRengi,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5)),
+  Widget _headerBolumu() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _selamlama,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  'Burak',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 34,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.8,
+                    height: 1.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _cam(
+            radius: 20,
+            tint: const Color(0xFFFF6B35),
+            opaklik: 0.25,
+            bulaniklik: 10,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('🔥', style: TextStyle(fontSize: 14)),
+                  SizedBox(width: 5),
+                  Text(
+                    '5 gün seri',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: UygulamaRenkleri.adacayiYesili.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(15),
+    );
+  }
+
+  Widget _heroKart() {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const OdaklanmaEkrani()),
+      ),
+      child: _cam(
+        radius: 28,
+        opaklik: 0.18,
+        bulaniklik: 18,
+        child: SizedBox(
+          height: 205,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                  ),
+                  child: const Text(
+                    '✨  Günün Önerisi',
+                    style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const Spacer(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _heroBaslik,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              height: 1.15,
+                              letterSpacing: -0.6,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _heroAlt,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.65),
+                              fontSize: 12,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow_rounded,
+                        color: Color(0xFF0A2A0A),
+                        size: 32,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            child: const Icon(Icons.play_arrow_rounded, color: UygulamaRenkleri.adacayiYesili),
           ),
-          const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      ),
+    );
+  }
+
+  Widget _olumlamaKart() {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const OlumlamalarEkrani()),
+      ),
+      child: _cam(
+        radius: 24,
+        tint: const Color(0xFFD946EF),
+        opaklik: 0.15,
+        bulaniklik: 16,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
             children: [
-              Text(baslik, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              Text(altBaslik, style: TextStyle(color: UygulamaRenkleri.ikincilYaziRengi, fontSize: 13)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.auto_awesome_rounded, size: 14, color: Colors.white70),
+                        const SizedBox(width: 8),
+                        const Text(
+                          "Günün Olumlaması",
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      _gunlukOlumlamalar[DateTime.now().day % _gunlukOlumlamalar.length],
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white, height: 1.5),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), shape: BoxShape.circle),
+                child: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.white),
+              ),
             ],
           ),
-        ],
+        ),
       ),
+    );
+  }
+
+  Widget _metinlerBanner() {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const DinlendiriciMetinlerEkrani()),
+      ),
+      child: _cam(
+        radius: 24,
+        tint: const Color(0xFF10B981),
+        opaklik: 0.22,
+        bulaniklik: 16,
+        child: Stack(
+          children: [
+            Positioned(
+              right: -15,
+              bottom: -15,
+              child: Icon(
+                Icons.auto_stories_rounded,
+                size: 115,
+                color: Colors.white.withValues(alpha: 0.06),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.5)),
+                    ),
+                    child: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 26),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Dinlendirici Metinler',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          '8 rehberli metin  ·  Uyku · Stres · Farkındalık',
+                          style: TextStyle(color: Colors.white60, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 14),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _kategoriGrid(double cellW) {
+    return Column(
+      children: [
+        Row(
+          children: List.generate(3, (i) => Padding(
+            padding: EdgeInsets.only(right: i < 2 ? 12 : 0),
+            child: _gridHucre(_kategoriler[i], cellW),
+          )),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: List.generate(3, (i) => Padding(
+            padding: EdgeInsets.only(right: i < 2 ? 12 : 0),
+            child: _gridHucre(_kategoriler[i + 3], cellW),
+          )),
+        ),
+      ],
+    );
+  }
+
+  Widget _gridHucre(Map<String, dynamic> kat, double cellW) {
+    final renk = kat['renk'] as Color;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        _kategoriGit(kat['ad'] as String);
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            width: cellW,
+            height: cellW * 1.12,
+            decoration: BoxDecoration(
+              color: renk.withValues(alpha: 0.28),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: renk.withValues(alpha: 0.45), width: 1),
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -10,
+                  bottom: -10,
+                  child: Icon(
+                    kat['ikon'] as IconData,
+                    size: 68,
+                    color: Colors.white.withValues(alpha: 0.07),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(13),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                        child: Icon(kat['ikon'] as IconData, color: Colors.white, size: 20),
+                      ),
+                      const Spacer(),
+                      Text(
+                        kat['ad'] as String,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        kat['alt'] as String,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.55),
+                          fontSize: 9,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _onerilenYatay() {
+    return SizedBox(
+      height: 175,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        itemCount: _onerilens.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 14),
+        itemBuilder: (context, i) {
+          final metin = _onerilens[i];
+          return GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => MetinOkuyucuEkrani(metin: metin)),
+            ),
+            child: Container(
+              width: 180,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                color: metin.renk,
+                boxShadow: [
+                  BoxShadow(
+                    color: metin.renk.withValues(alpha: 0.45),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    right: -14,
+                    bottom: -14,
+                    child: Icon(
+                      metin.ikon,
+                      size: 95,
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(11),
+                          ),
+                          child: Icon(metin.ikon, color: Colors.white, size: 20),
+                        ),
+                        const Spacer(),
+                        Text(
+                          metin.baslik,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            height: 1.3,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.schedule_rounded, color: Colors.white60, size: 12),
+                            const SizedBox(width: 4),
+                            Text(metin.sure, style: const TextStyle(color: Colors.white60, fontSize: 11)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _bolumBasligi(String baslik, String alt) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                baslik,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              Text(
+                alt,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white.withValues(alpha: 0.5),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Text(
+          'Tümü →',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withValues(alpha: 0.55),
+          ),
+        ),
+      ],
     );
   }
 }
